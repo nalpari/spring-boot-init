@@ -6,6 +6,8 @@ import net.devgrr.springbootinit.dto.UserDto;
 import net.devgrr.springbootinit.dto.UserUpdateRequest;
 import net.devgrr.springbootinit.entity.Role;
 import net.devgrr.springbootinit.entity.User;
+import net.devgrr.springbootinit.exception.UserAlreadyExistsException;
+import net.devgrr.springbootinit.exception.UserNotFoundException;
 import net.devgrr.springbootinit.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,14 +43,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
         return convertToDto(user);
     }
 
     @Transactional(readOnly = true)
     public UserDto getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("username", username));
         return convertToDto(user);
     }
 
@@ -70,11 +72,11 @@ public class UserService {
 
     public UserDto createUser(UserCreateRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists: " + request.getUsername());
+            throw new UserAlreadyExistsException("Username already exists: " + request.getUsername());
         }
         
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists: " + request.getEmail());
+            throw new UserAlreadyExistsException("Email already exists: " + request.getEmail());
         }
 
         User user = User.builder()
@@ -90,18 +92,18 @@ public class UserService {
 
     public UserDto updateUser(Long id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         if (request.getUsername() != null && !request.getUsername().equals(user.getUsername())) {
             if (userRepository.existsByUsernameAndIdNot(request.getUsername(), id)) {
-                throw new RuntimeException("Username already exists: " + request.getUsername());
+                throw new UserAlreadyExistsException(request.getUsername());
             }
             user.setUsername(request.getUsername());
         }
 
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmailAndIdNot(request.getEmail(), id)) {
-                throw new RuntimeException("Email already exists: " + request.getEmail());
+                throw new UserAlreadyExistsException("Email already exists: " + request.getEmail());
             }
             user.setEmail(request.getEmail());
         }
@@ -116,7 +118,7 @@ public class UserService {
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
+            throw new UserNotFoundException(id);
         }
         userRepository.deleteById(id);
     }

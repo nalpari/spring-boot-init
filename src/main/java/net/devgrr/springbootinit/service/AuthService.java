@@ -6,6 +6,8 @@ import net.devgrr.springbootinit.dto.LoginRequest;
 import net.devgrr.springbootinit.dto.SignupRequest;
 import net.devgrr.springbootinit.entity.Role;
 import net.devgrr.springbootinit.entity.User;
+import net.devgrr.springbootinit.exception.UserAlreadyExistsException;
+import net.devgrr.springbootinit.exception.UserNotFoundException;
 import net.devgrr.springbootinit.repository.UserRepository;
 import net.devgrr.springbootinit.util.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,11 +26,11 @@ public class AuthService {
 
     public AuthResponse signup(SignupRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new UserAlreadyExistsException("Username already exists: " + request.getUsername());
         }
         
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new UserAlreadyExistsException("Email already exists: " + request.getEmail());
         }
 
         User user = User.builder()
@@ -53,7 +55,7 @@ public class AuthService {
         );
 
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("username", request.getUsername()));
 
         String token = jwtUtil.generateToken(user);
 

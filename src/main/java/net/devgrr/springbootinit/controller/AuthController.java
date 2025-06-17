@@ -27,12 +27,8 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Invalid input or user already exists")
     })
     public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest request) {
-        try {
-            AuthResponse response = authService.signup(request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        AuthResponse response = authService.signup(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
@@ -42,11 +38,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Invalid credentials")
     })
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        try {
-            AuthResponse response = authService.login(request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).build();
-        }
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }

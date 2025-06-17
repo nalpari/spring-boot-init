@@ -58,24 +58,16 @@ public class UserController {
     })
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        try {
-            UserDto user = userService.getUserById(id);
-            return ResponseEntity.ok(user);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        UserDto user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/username/{username}")
     @Operation(summary = "Get user by username", description = "Retrieve a specific user by username")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
-        try {
-            UserDto user = userService.getUserByUsername(username);
-            return ResponseEntity.ok(user);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        UserDto user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/role/{role}")
@@ -103,12 +95,8 @@ public class UserController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> createUser(@RequestBody UserCreateRequest request) {
-        try {
-            UserDto user = userService.createUser(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(user);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        UserDto user = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @PutMapping("/{id}")
@@ -120,12 +108,8 @@ public class UserController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest request) {
-        try {
-            UserDto user = userService.updateUser(id, request);
-            return ResponseEntity.ok(user);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        UserDto user = userService.updateUser(id, request);
+        return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/{id}")
@@ -136,11 +120,7 @@ public class UserController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        try {
-            userService.deleteUser(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
