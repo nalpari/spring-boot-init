@@ -27,7 +27,7 @@ services:
   spring-boot-app:
     build:
       context: .
-      dockerfile: Dockerfile.simple
+      dockerfile: Dockerfile
     container_name: spring-boot-init-app
     environment:
       SPRING_PROFILES_ACTIVE: docker
