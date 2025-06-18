@@ -1,0 +1,76 @@
+services:
+  # PostgreSQL Database
+  postgres-db:
+    image: postgres:15
+    container_name: spring-boot-postgres
+    environment:
+      POSTGRES_USER: mydb
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - spring-boot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mydb -d mydatabase"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Spring Boot Application
+  spring-boot-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    container_name: spring-boot-init-app
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: mydb
+      SPRING_DATASOURCE_PASSWORD: mypassword
+      JWT_SECRET: ${JWT_SECRET:-myVerySecretKeyForJWTTokenGeneration123456789}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      JAVA_OPTS: "-Xms512m -Xmx1024m"
+    ports:
+      - "8080:8080"
+    networks:
+      - spring-boot-network
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Redis (Optional - for caching)
+#  redis:
+#    image: redis:7-alpine
+#    container_name: spring-boot-redis
+#    ports:
+#      - "6379:6379"
+#    networks:
+#      - spring-boot-network
+#    restart: unless-stopped
+#    healthcheck:
+#      test: ["CMD", "redis-cli", "ping"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+
+networks:
+  spring-boot-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
