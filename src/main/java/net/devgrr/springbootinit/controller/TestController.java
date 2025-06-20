@@ -42,7 +42,7 @@ public class TestController {
 
     @GetMapping("/user")
     @Operation(summary = "Test user authorization", description = "Test if user authorization is working")
-    @PreAuthorize("hasRole('USER')")
+//    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<String> testUser() {
         return ResponseEntity.ok("User access granted");
     }
