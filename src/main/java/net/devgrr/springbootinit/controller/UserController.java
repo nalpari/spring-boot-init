@@ -21,6 +21,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 사용자 관리 REST API 컨트롤러
+ * 
+ * 사용자의 CRUD (Create, Read, Update, Delete) 작업을 처리하는 엔드포인트들을 제공합니다.
+ * 대부분의 기능은 관리자 권한을 요구하며, JWT 토큰을 통한 인증이 필요합니다.
+ * 페이징, 검색, 역할별 조회 등의 고급 기능도 지원합니다.
+ * 
+ * @author devgrr
+ * @version 1.0
+ * @since 2024
+ */
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -28,6 +39,10 @@ import java.util.List;
 @SecurityRequirement(name = "Bearer Authentication")
 public class UserController {
 
+    /**
+     * 사용자 서비스 의존성 주입
+     * 비즈니스 로직 처리를 위한 서비스 계층 객체
+     */
     private final UserService userService;
 
     @GetMapping
